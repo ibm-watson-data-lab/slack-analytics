@@ -7,7 +7,7 @@
  	$ cd slack-analytics
  	```
 
-2. Generate [Slack statistics](https://github.com/ibm-cds-labs/slack-analytics/tree/initial/slack-setup) for your Slack team
+2. Collect [Slack statistics](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats) for your Slack team
  
 3. Setup the desired analysis environment and load the Slack statistics
 
@@ -15,5 +15,5 @@
  	 
 4. Explore the sample applications
  
-  * [Display user and channel activity in Slack](https://github.com/ibm-cds-labs/slack-analytics-about-service) 
+  * [Query user and channel activity in Slack](https://github.com/ibm-cds-labs/slack-analytics-about-service) 
 
