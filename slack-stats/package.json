@@ -1,0 +1,19 @@
+{
+  "name": "slack-setup",
+  "version": "0.1.0",
+  "description": "Slack analytics setup",
+  "main": "collect-slack-stats.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ptitzler@us.ibm.com",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "argv": "0.0.2",
+    "async": "^2.0.0-rc.3",
+    "debug": "^2.2.0",
+    "fs": "0.0.2",
+    "lodash": "^4.11.2",
+    "path": "^0.12.7"
+  }
+}
