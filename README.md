@@ -11,7 +11,7 @@
  
 3. Setup the desired analysis environment and load the Slack statistics
 
- 	* [IBM Graph](https://github.com/ibm-cds-labs/slack-analytics/tree/initial/slack-graph-database)
+ 	* [IBM Graph](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-graph-database)
  	 
 4. Explore the sample applications
  
