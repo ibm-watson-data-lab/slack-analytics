@@ -100,7 +100,7 @@ Once the graph has been built you can query it.
 
    The Query Builder in the IBM Graph web console in Bluemix provides a simple interface to query the graph using the Gremlin query language. Results are returned in JSON.
 
-   ![Graph query in Bluemix](https://raw.githubusercontent.com/ibm-cds-labs/slack-analytics/slack-graph-database/img/IBM_graph_query_builder_in_Bluemix.png)
+   ![Graph query in Bluemix](img/IBM_graph_query_builder_in_Bluemix.png)
   
 #### Sample applications
 
