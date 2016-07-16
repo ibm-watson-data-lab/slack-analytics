@@ -1,0 +1,128 @@
+{
+    "propertyKeys": [ 
+           {
+            "cardinality":"SINGLE", 
+            "dataType":"String", 
+            "name":"userId"
+           },
+           {
+            "cardinality":"SINGLE", 
+            "dataType":"String", 
+            "name":"userName"
+           },
+           {
+            "cardinality":"SINGLE", 
+            "dataType":"String", 
+            "name":"channelId"
+           },
+           {
+            "cardinality":"SINGLE", 
+            "dataType":"String", 
+            "name":"channelName"
+           },
+           {
+            "cardinality":"SINGLE", 
+            "dataType":"String", 
+            "name":"inChannelId"
+           },                                   
+           {
+            "cardinality":"SINGLE", 
+            "dataType":"String", 
+            "name":"inChannelName"
+           },
+           {     
+            "cardinality":"SINGLE",                              
+            "dataType":"Integer", 
+            "name":"messageCount"
+           },
+           {
+            "cardinality":"SINGLE",                                   
+            "dataType":"Integer", 
+            "name":"mentionCount"
+           },
+           {                     
+            "cardinality":"SINGLE",                                                 
+            "dataType":"Boolean", 
+            "name":"isUser"
+           },
+           {                     
+            "cardinality":"SINGLE",                                                 
+            "dataType":"Boolean", 
+            "name":"isChannel"
+           }
+          ],
+    "edgeIndexes": [                             
+             {
+                "composite":true, 
+                "name":"inChannelIdIndex", 
+                "propertyKeys": [ "inChannelId" ], 
+                "unique":false
+             },
+             {
+                "composite":true, 
+                "name":"inChannelNameIndex", 
+                "propertyKeys": [ "inChannelName" ], 
+                "unique":false
+             }
+            ], 
+    "edgeLabels": [ 
+            {
+                "multiplicity":"MULTI", 
+                "name":"is_in_channel"
+            },
+            {
+                "multiplicity":"MULTI", 
+                "name":"mentions_user"
+            },                                
+            {
+                "multiplicity":"MULTI", 
+                "name":"mentions_channel"
+            }], 
+    "vertexIndexes": [ 
+            {
+             "composite":true, 
+             "name":"userIdIndex", 
+             "propertyKeys": [ "userId" ], 
+             "unique":true
+            },
+            {
+             "composite":true, 
+             "name":"userNameIndex", 
+             "propertyKeys": [ "userName" ], 
+             "unique":false
+            },
+            {
+             "composite":true, 
+             "name":"isUserIndex", 
+             "propertyKeys": [ "isUser" ], 
+             "unique":false
+            }, 
+            {
+             "composite":true, 
+             "name":"isChannelIndex", 
+             "propertyKeys": [ "isChannel" ], 
+             "unique":false
+            },
+            {
+             "composite":true, 
+             "name":"channelNameIndex", 
+             "propertyKeys": [ "channelName" ], 
+             "unique":false
+            },
+            {
+             "composite":true, 
+             "name":"channelIdIndex", 
+             "propertyKeys": [ "channelId" ], 
+             "unique":true
+            }], 
+    "vertexLabels": [ 
+            {
+                "name": "user"
+            },
+            {
+                "name": "integration"
+            },
+            {
+                "name": "channel"
+            }] 
+}

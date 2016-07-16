@@ -1,0 +1,14 @@
+{
+  "IBM Graph": [
+    {
+      "name": "slack-graph-db",
+      "label": "IBM Graph",
+      "plan": "Entry",
+      "credentials": {
+        "apiURL": "TODO-REPLACE-WITH-your-IBM-Graph-instance-API-URL",
+        "username": "TODO-REPLACE-WITH-your-IBM-Graph-instance-username",
+        "password": "TODO-REPLACE-WITH-your-IBM-Graph-instance-password"
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+-- This is a comment.
+
+-- Perform graph traversal without variable binding (short form)
+def g = graph.traversal(); g.V().has("isUser", true).count()
+
+-- Perform graph traversal without variable binding (long form)
+{"gremlin": "def g = graph.traversal(); g.V().has(\"isChannel\", true).count()"}
+
+-- Perform graph traversal with variable binding
+{"gremlin": "def g = graph.traversal(); g.V().has(\"isChannel\", var0).count()", "bindings":{"var0": true}}
+
