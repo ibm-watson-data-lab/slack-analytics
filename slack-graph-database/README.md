@@ -105,6 +105,7 @@ Once the graph has been built you can query it.
 #### Sample applications
 
    Use the [sample Slack slash command](https://github.com/ibm-cds-labs/slack-analytics-about-service) to let Slack users query the graph.
+   
    ![Slack social graph interaction](https://raw.githubusercontent.com/ibm-cds-labs/slack-analytics-about-service/master/media/slash-command-demo.gif)
     
 #### Programmatic graph traversal
