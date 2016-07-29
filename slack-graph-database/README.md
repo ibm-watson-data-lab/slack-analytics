@@ -80,14 +80,14 @@ Follow the Slack [statistics collection instructions](https://github.com/ibm-cds
   
 ### Generate the Slack graph model for your team
 
-  Generate a Slack graph model file using the statistics files that you [generated earlier](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats).
+  Run `build-slack-graph-model.js` to generate a Slack graph model file using the statistics files that you [generated earlier](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats).
 
   ```
   $ node build-slack-graph-model.js -s </path/to/><slack-team-name>-stats.json -k </path/to/><slack-team-name>-keyword-stats.json -c </path/to/>channels.json -u </path/to/>users.json -n <slack-model-name>
   ```
 
  > Example: 
- > ```node build-slack-graph-model.js -s ../stats/demo-team-stats.json -k ../stats/demo-team-keyword-stats.json -c ../slack-messages/channels.json -u ../slack-messages/users.json -n demo-team-0801```
+ > ```node build-slack-graph-model.js -s ../stats/demo-team-stats.json -k ../stats/demo-team-keyword-stats.json -c /home/wolli/channels.json -u /home/wolli/users.json -n demo-team-0801```
 
 The generated Slack graph model file `<slack-model-name>.sgm` is used in the next step to load the graph into the IBM Graph service instance.
 
@@ -96,6 +96,9 @@ The generated Slack graph model file `<slack-model-name>.sgm` is used in the nex
   ```
   $ node load-slack-graph-model.js -m </path/to/><slack-model-name>.sgm
   ```
+
+   > Example: 
+ > ```node load-slack-graph-model.js -m demo-team-0801.sgm```
 
 ### Query the Slack graph 
 
