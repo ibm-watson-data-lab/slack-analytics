@@ -109,7 +109,7 @@ const SGM = require('./slack_graph_model.js');
 		const maxVertexWorkers = 5,
 			  maxEdgeWorkers = 5;
 
-		console.log('Creating gremlin scripts.');
+		console.log('Generating gremlin scripts.');
 
 		var gremlinBatches = this.model.generateGremlinDDLBatches();
 		var verticesBatches = [];
@@ -126,7 +126,9 @@ const SGM = require('./slack_graph_model.js');
 			}
 		}
 
-		console.log('Processing list: ' + verticesBatches.length + ' vertex definition scripts, ' + edgesBatches.length + ' edge definition scripts.');
+		console.log('The graph is created using ' + verticesBatches.length + ' vertex definition scripts and ' + edgesBatches.length + ' edge definition scripts.');
+
+		debug('Running scripts to create vertices');
 
 		// create vertices
 		async.eachLimit(verticesBatches, 
@@ -146,9 +148,9 @@ const SGM = require('./slack_graph_model.js');
 													                 JSON.stringify(error) + '\n' + 
 													                 '# -------------------- Graph DB response  --------------------\n' + 
 													                 JSON.stringify(response) + '\n' + 
-													                 '# -------------------- gremlin   --------------------\n' + 
+													                 '# -------------------- gremlin (' + gremlinBatch.ddl.length + ' bytes)  --------------------\n' + 
 													                 gremlinBatch.ddl + 
-													                 '# -------------------- bindings  --------------------\n' + 
+													                 '# -------------------- bindings (' + JSON.stringify(gremlinBatch.ddlBindings).length + ' bytes)  --------------------\n' + 
 													                 JSON.stringify(gremlinBatch.ddlBindings), 
 																	 function (dumpError) {
 																	 	console.error('FFDC dump operation completed: ' + (dumpError || 'no errors'));
@@ -167,6 +169,8 @@ const SGM = require('./slack_graph_model.js');
 				   			debug('Error executing gremlin scripts to create edges: ' + error);
 				   			return done(error);
 				   		}
+
+						debug('Running scripts to create edges.');
 
 				   		currentBatch = 1;
 
@@ -188,9 +192,9 @@ const SGM = require('./slack_graph_model.js');
 																		                 JSON.stringify(error) + '\n' + 
 																		                 '# -------------------- Graph DB response  --------------------\n' + 
 																		                 JSON.stringify(response) + '\n' + 
-																		                 '# -------------------- gremlin   --------------------\n' + 
+																		                 '# -------------------- gremlin (' + gremlinBatch.ddl.length + ' bytes)  --------------------\n' + 
 																		                 gremlinBatch.ddl + 
-																		                 '# -------------------- bindings  --------------------\n' + 
+																		                 '# -------------------- bindings (' + JSON.stringify(gremlinBatch.ddlBindings).length + ' bytes)  --------------------\n' + 
 																		                 JSON.stringify(gremlinBatch.ddlBindings), 
 																						 function (dumpError) {
 																						 	console.error('FFDC dump operation completed: ' + (dumpError || 'no errors'));

@@ -49,6 +49,16 @@
             "cardinality":"SINGLE",                                                 
             "dataType":"Boolean", 
             "name":"isChannel"
+           },
+           {
+            "cardinality":"SINGLE", 
+            "dataType":"String", 
+            "name":"keyword"
+           },
+           {                     
+            "cardinality":"SINGLE",                                                 
+            "dataType":"Boolean", 
+            "name":"isKeyword"
            }
           ],
     "edgeIndexes": [                             
@@ -77,7 +87,16 @@
             {
                 "multiplicity":"MULTI", 
                 "name":"mentions_channel"
-            }], 
+            },
+            {
+                "multiplicity":"MULTI", 
+                "name":"mentions_keyword"
+            },
+            {
+                "multiplicity":"MULTI", 
+                "name":"used_in_channel"
+            }           
+            ], 
     "vertexIndexes": [ 
             {
              "composite":true, 
@@ -114,6 +133,18 @@
              "name":"channelIdIndex", 
              "propertyKeys": [ "channelId" ], 
              "unique":true
+            },
+            {
+             "composite":false,
+             "name":"keywordIndex",
+             "propertyKeys": ["keyword"],
+             "unique":true       
+            }, 
+            {
+             "composite":true, 
+             "name":"isKeywordIndex", 
+             "propertyKeys": [ "isKeyword" ], 
+             "unique":false
             }], 
     "vertexLabels": [ 
             {
@@ -124,5 +155,8 @@
             },
             {
                 "name": "channel"
+            },
+            {
+                "name": "keyword"    
             }] 
 }

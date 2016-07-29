@@ -1,7 +1,7 @@
 {
   "name": "slack-graph-db",
-  "version": "0.0.2",
-  "description": "Graph DB utilities for Slack analytics",
+  "version": "0.1.0",
+  "description": "IBM Graph utilities for Slack analytics",
   "main": "define-slack-schema.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -76,7 +76,8 @@ var IBMGraphClient = require('ibm-graph-client');
 	 var graphServiceCredentials = appEnv.getServiceCreds('slack-graph-database');
 
 	 if(! graphServiceCredentials) {
-	    throw new Error('This application is not bound to a Bluemix hosted IBM Graph. Set the VCAP_SERVICES environment variable or add the service information to file vcap_services.json.');
+	    console.error('This application is not bound to a Bluemix hosted IBM Graph. Set the VCAP_SERVICES environment variable or add the service information to file vcap_services.json.');
+	   	process.exit(1);
 	 }
 
 	/*
@@ -100,12 +101,12 @@ var IBMGraphClient = require('ibm-graph-client');
  console.time('File load time');
  gmio.loadModelfromFile(modelFileName, 
  	                    function(error, model){
-	console.timeEnd('File load time');
 	if(error) {
-		console.error('Eror loading in-memory graph model from file ' + modelFileName + ':' + error);
+		console.error('Error loading in-memory graph model from file ' + modelFileName + ':' + error);
 	}
 	else {
-		
+
+		console.timeEnd('File load time');		
 		debug(JSON.stringify(model.getModelStatistics()));
 
 		// create model in Graph DB
@@ -118,15 +119,18 @@ var IBMGraphClient = require('ibm-graph-client');
 															 	console.error('Error loading model into Graph DB instance ' + graphServiceCredentials.apiURL + ' : ' + error);
 															}
 															else {													 
-																 GraphClient.gremlin('def r = []; def g = graph.traversal(); r << g.V().has("isChannel", true).count().next(); r << g.V().has("isUser", true).count().next(); r << g.V().has("isUser", true).outE("is_in_channel").count().next(); r << g.V().has("isUser", true).outE("mentions_channel").count().next(); r << g.V().has("isUser", true).outE("mentions_user").count().next(); r;',
+																 GraphClient.gremlin('def r = []; def g = graph.traversal(); r << g.V().has("isChannel", true).count().next(); r << g.V().has("isUser", true).count().next(); r << g.V().has("isKeyword", true).count().next(); r << g.V().has("isUser", true).outE("is_in_channel").count().next(); r << g.V().has("isUser", true).outE("mentions_channel").count().next(); r << g.V().has("isUser", true).outE("mentions_user").count().next(); r << g.V().has("isKeyword", true).inE("mentions_keyword").count().next(); r << g.V().has("isKeyword", true).outE("used_in_channel").count().next(); r;',
 																                 function (error, response) {
 																                    if((response) && (response.result) && (response.result.data)) {
 																                      console.log('Graph DB instance ' + graphServiceCredentials.apiURL + ' graph details:');	
-																                      console.log('Channel vertices      : ' + response.result.data[0]);  
-																                      console.log('User vertices         : ' + response.result.data[1]);
-																                      console.log('is_in_channel edges   : ' + response.result.data[2]);  
-																                      console.log('mentions_channel edges: ' + response.result.data[3]);  
-																                      console.log('mentions_user edges   : ' + response.result.data[4]); 
+																                      console.log('Channel vertices             : ' + response.result.data[0]);  
+																                      console.log('User vertices                : ' + response.result.data[1]);
+																                      console.log('Keyword vertices             : ' + response.result.data[2]);
+																                      console.log('[User] is_in_channel edges   : ' + response.result.data[3]);  
+																                      console.log('[User] mentions_channel edges: ' + response.result.data[4]);  
+																                      console.log('[User] mentions_user edges   : ' + response.result.data[5]); 
+																                      console.log('[User] mentions_keyword edges: ' + response.result.data[6]);
+																                      console.log('[Keyword] used_in_channel edges: ' + response.result.data[7]);
 																                    }
 																                    else {
 																                      console.error('Request execution error: ' + error + ' ' + response.code + ' ' + response.message);
