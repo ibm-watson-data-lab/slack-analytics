@@ -56,9 +56,9 @@ Follow the Slack [statistics collection instructions](https://github.com/ibm-cds
             ```
             "..." : "...",
             "credentials": {
-              "url": "TODO-REPLACE-WITH-your-Alchemy-API-instance-URL",
-              "note": "It may take up to 5 minutes for this key to become active",
-              "apikey": "TODO-REPLACE-WITH-your-Alchemy-API-instance-key"
+              "apiURL": "TODO-REPLACE-WITH-your-IBM-Graph-instance-API-URL",
+              "username": "TODO-REPLACE-WITH-your-IBM-Graph-instance-username",
+              "password": "TODO-REPLACE-WITH-your-IBM-Graph-instance-password"
             }
             ```
 
