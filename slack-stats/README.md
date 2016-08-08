@@ -2,6 +2,8 @@
 
 Slack message archives contain records of user activity in [public] channels. These records identify users, topics, references to other users, references to channels, etc. To gain insights - such as who is active in a channel and which topics are discussed in a channel - follow these instruction to extract the relevant information for later processing.
 
+![Building a Slack graph](http://developer.ibm.com/clouddataservices/wp-content/uploads/sites/47/2016/08/sa_build_graph.png)
+
 ####Prerequisites
 Before you can collect and prepare the data, verify 
 
@@ -42,7 +44,7 @@ Before you can collect and prepare the data, verify
 
 #####Download and install the setup utilities
 
-1. Clone the Slack anlytics repository
+1. Clone the Slack analytics repository
 
 	```
 	$ git clone https://github.com/ibm-cds-labs/slack-analytics.git
@@ -58,7 +60,7 @@ Before you can collect and prepare the data, verify
   
 #### Collect Slack statistics
 
-The setup utilities extract relevant information from the message files and collect activity statistics.
+Collect statistics about users, channels and keywords. These statistics are used to build a graph that represents these entities and their relationships.
 
 ##### Collect social statistics 
 
@@ -107,7 +109,7 @@ Keyword statistics associate keywords with users that mentioned them and channel
     }
     ```
 
-4. Bind the service instance to the setup scripts
+ 4. Bind the service instance to the collection scripts
 
     * **Binding using a configuration file** 
         * Locate file `vcap_services_template.json` in the `slack-stats` directory and rename it to `vcap_services.json`.
@@ -130,13 +132,13 @@ Keyword statistics associate keywords with users that mentioned them and channel
             {"alchemy_api":[{"name":"slack-alchemy-api","label":"alchemy_api","plan":"free","credentials":{"url": "TODO-REPLACE-WITH-your-Alchemy-API-instance-URL", "note": "It may take up to 5 minutes for this key to become active", "apikey": "TODO-REPLACE-WITH-your-Alchemy-API-instance-key"}}]}
             ```
 
-> Note: Alchemy's free plan allows for up to 1,000 API invocations per day. Once the limit is reached the keyword collection process is stopped.
+ > Note: Alchemy's free plan allows for up to 1,000 API invocations per day. Once the limit is reached the keyword collection process is stopped.
 
-5. Collect keyword statistics
+ 5. Collect keyword statistics
 
     Run `collect-keyword-stats.js` and specify the location of the extracted message files and the Slack team name as parameters.
 ```
-$ node --expose-gc collect-keyword-stats.js -d </path/to/extracted/zip-file/> -n <slack-team-name>
+    $ node --expose-gc collect-keyword-stats.js -d </path/to/extracted/zip-file/> -n <slack-team-name>
 ```
 
 
