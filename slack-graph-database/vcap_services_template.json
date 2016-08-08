@@ -1,7 +1,7 @@
 {
   "IBM Graph": [
     {
-      "name": "slack-graph-db",
+      "name": "slack-graph-database",
       "label": "IBM Graph",
       "plan": "Entry",
       "credentials": {
