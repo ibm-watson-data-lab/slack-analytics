@@ -86,6 +86,8 @@ Keyword statistics associate keywords with users that mentioned them and channel
     ```
     $ cf create-service "alchemy_api" free slack-alchemy-api
     ```
+    
+    > The Free Plan includes 1,000 events per day per Bluemix Organization. You can only have one instance at a time of the AlchemyAPI service and one AlchemyAPI credential in the Free plan.
 
  2. Create service credentials for this service instance
 
@@ -108,6 +110,20 @@ Keyword statistics associate keywords with users that mentioned them and channel
      "url": "https://gateway-a.watsonplatform.net/calls"
     }
     ```
+    
+    > To determine how many API events you have consumed invoke the following API, passing your API key as parameter: `http://access.alchemyapi.com/calls/info/GetAPIKeyInfo?apikey=<apikey>`
+    
+    > Example output for the free plan: 
+    
+     ```
+<?xml version="1.0" encoding="UTF-8"?>
+	<results>
+    		<status>OK</status>
+    		<consumedDailyTransactions>0</consumedDailyTransactions>
+    		<dailyTransactionLimit>1000</dailyTransactionLimit>
+	</results>
+     ```
+    
 
  4. Bind the service instance to the collection scripts
 
@@ -132,9 +148,9 @@ Keyword statistics associate keywords with users that mentioned them and channel
             {"alchemy_api":[{"name":"slack-alchemy-api","label":"alchemy_api","plan":"free","credentials":{"url": "TODO-REPLACE-WITH-your-Alchemy-API-instance-URL", "note": "It may take up to 5 minutes for this key to become active", "apikey": "TODO-REPLACE-WITH-your-Alchemy-API-instance-key"}}]}
             ```
 
- > Note: Alchemy's free plan allows for up to 1,000 API invocations per day. Once the limit is reached the keyword collection process is stopped.
-
  5. Collect keyword statistics
+
+    > Note: Alchemy's free plan allows for up to 1,000 API invocations per day. Once the limit is reached (`{"error":"daily-transaction-limit-exceeded","code":400}`) the keyword collection process is stopped.
 
     Run `collect-keyword-stats.js` and specify the location of the extracted message files and the Slack team name as parameters.
 ```
