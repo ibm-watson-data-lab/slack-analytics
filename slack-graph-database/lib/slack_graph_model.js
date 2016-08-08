@@ -17,7 +17,8 @@
 'use strict';
 
 const _ = require('lodash');
-const debug = require('debug')('slack_graph_model');
+const debug = require('debug')('slack_graph_model'),
+	  debugModel = require('debug')('slack_graph_model:data');
 
 /**
  * Simple representation of a Slack graph for a single team.
@@ -34,18 +35,22 @@ function SlackGraphModel (teamName) {
 	this.graph = {
 					vertices : {
 									users: {},
-									channels: {}
+									channels: {},
+									keywords: {}
 					}
-	};
+				 };
 
 
 	this.idCounters = {
-						user: 0,
-						channel: 0,
-						mUser: 0,
-						mChannel: 0,
-						iiChannel: 0
-	};
+						user: 0,				// user vertex counter
+						channel: 0,				// channel vertex counter
+						keyword: 0,				// keyword vertex counter
+						mUser: 0,				// [user] mentions_user edge counter
+						mChannel: 0,			// [user] mentions_channel edge counter
+						mKeyword: 0,			// [user] mentions_keyword edge counter
+						iiChannel: 0,			// [user] is_in_channel edge counter
+						uiChannel: 0			// [keyword] used_in_channel edge counter
+					  };
 
 	// Slack user information lookup hash
 	this.userInfoLookup = {};
@@ -125,7 +130,7 @@ function SlackGraphModel (teamName) {
 				}				
 			}
 
-			debug('Added channel vertex: ' + JSON.stringify(this.graph.vertices.channels[channelId]));			
+			debugModel('Added channel vertex: ' + JSON.stringify(this.graph.vertices.channels[channelId]));			
 		}
 	}; // addChannel
 
@@ -160,11 +165,40 @@ function SlackGraphModel (teamName) {
 					debug('Warning. No lookup information is available for user ' + userId);
 				}									
 			}
-			debug('Added user vertex ' + userId + ': ' + JSON.stringify(this.graph.vertices.users[userId]));
+			debugModel('Added user vertex ' + userId + ': ' + JSON.stringify(this.graph.vertices.users[userId]));
 
 		}
 
 	}; // addUser
+
+	/**
+	 * Add keyword vertex to graph 
+	 * @param {string} keyword - important keyword that was used in messages (required)
+     */
+	SlackGraphModel.prototype.addKeyword = function(keyword) {
+
+		keyword = (keyword || '').trim();
+
+		// keyword is mandatory 
+		if(keyword.length === 0) {
+			return;
+		}
+
+		if(! this.graph.vertices.keywords[keyword]) {
+
+			this.idCounters.keyword++;			
+
+			this.graph.vertices.keywords[keyword] = {
+														vertexId: null,					
+														modelId: 'k' + this.idCounters.keyword,
+														outEdges: {}	
+													};
+
+			debugModel('Added keyword vertex ' + keyword + ': ' + JSON.stringify(this.graph.vertices.keywords[keyword]));
+
+		}
+
+	}; // addKeyword
 
 	/**
 	 * Add is_in_channel edge to graph 
@@ -205,7 +239,7 @@ function SlackGraphModel (teamName) {
 																		messageCount: messageCount
 															 	  	  });
 
-		debug('Added is_in_channel edge: ' + JSON.stringify(this.graph.vertices.users[userId]));
+		debugModel('Added is_in_channel edge: ' + JSON.stringify(this.graph.vertices.users[userId]));
 
 	}; // addIsInChannel
 
@@ -265,7 +299,7 @@ function SlackGraphModel (teamName) {
 
 		this.graph.vertices.users[userId].outEdges.mentions_user.push(edge);
 
-		debug('Added mentions_user edge: ' + JSON.stringify(this.graph.vertices.users[userId]));
+		debugModel('Added mentions_user edge: ' + JSON.stringify(this.graph.vertices.users[userId]));
 
 	}; // addMentionsUsers
 
@@ -324,9 +358,102 @@ function SlackGraphModel (teamName) {
 
 		this.graph.vertices.users[userId].outEdges.mentions_channel.push(edge);
 
-		debug('Added mentions_channel edge: ' + JSON.stringify(this.graph.vertices.users[userId]));
+		debugModel('Added mentions_channel edge: ' + JSON.stringify(this.graph.vertices.users[userId]));
 
 	}; // addMentionsChannel
+
+
+	/**
+	 * Add [user] mentions_keyword edge to graph 
+	 * @param {string} userId - slack user id
+	 * @param {Object} keyword - keyword (required)
+     */
+	SlackGraphModel.prototype.addMentionsKeyword = function(userId, keyword) {
+
+		keyword = (keyword || '').trim();
+
+		if((! userId) || (keyword.length === 0)) { 
+			return; // required information is missing
+		}
+
+		// make sure a vertex for the user exists
+		if(! this.graph.vertices.users[userId]) {
+			this.addUser(userId);
+		}
+
+		// make sure a vertex for the mentioned keyword exists
+		if(! this.graph.vertices.keywords[keyword]) {
+			this.addKeyword(keyword);
+		}
+
+		if(! this.graph.vertices.users[userId].outEdges.mentions_keyword) {
+			this.graph.vertices.users[userId].outEdges.mentions_keyword = [];	
+		}
+
+		// add edge if it doesn't exist already
+		if(! _.find(this.graph.vertices.users[userId].outEdges.mentions_keyword, function(edge) {return (edge.keywordId === keyword); })) {
+
+			this.idCounters.mKeyword++;
+
+			var edge = {
+						  edgeId: null,
+						  modelId: 'mk' + this.idCounters.mKeyword,																		  			
+						  keywordId: keyword
+					   };
+
+			this.graph.vertices.users[userId].outEdges.mentions_keyword.push(edge);
+
+			debugModel('Added mentions_keyword edge: ' + JSON.stringify(this.graph.vertices.users[userId]));
+
+		}		
+
+	}; // addMentionsKeyword
+
+	/**
+	 * Add [keyword] used_in_channel edge to graph; connects keyword vertex with channel vertex
+	 * @param {Object} keyword - keyword (required)
+	 * @param {string} channelId - Slack channel id (required)
+     */
+	SlackGraphModel.prototype.addUsedInChannel = function(keyword, channelId) {
+
+		keyword = (keyword || '').trim();
+
+		if((! channelId) || (keyword.length === 0)) { 
+			return; // required information is missing
+		}
+
+		// make sure a vertex for the channel exists
+		if(! this.graph.vertices.channels[channelId]) {
+			this.addChannel(channelId);
+		}
+
+		// make sure a vertex for the mentioned keyword exists
+		if(! this.graph.vertices.keywords[keyword]) {
+			this.addKeyword(keyword);
+		}
+
+		if(! this.graph.vertices.keywords[keyword].outEdges.used_in_channel) {
+			this.graph.vertices.keywords[keyword].outEdges.used_in_channel = [];	
+		}
+
+		// add edge between keyword and channel vertices if it doesn't exist already
+		if(! _.find(this.graph.vertices.keywords[keyword].outEdges.used_in_channel, function(edge) {return (edge.channelId === channelId); })) {
+
+			this.idCounters.uiChannel++;
+
+			var edge = {
+						  edgeId: null,
+						  modelId: 'uic' + this.idCounters.uiChannel,																		  			
+						  channelId: channelId
+					   };
+
+			this.graph.vertices.keywords[keyword].outEdges.used_in_channel.push(edge);
+
+			debugModel('Added used_in_channel edge: ' + JSON.stringify(this.graph.vertices.keywords[keyword]));
+
+		}		
+
+	}; // addUsedInChannel
 
 	/**
 	  * Returns vertices and edges statistics for this graph model.
@@ -337,9 +464,12 @@ function SlackGraphModel (teamName) {
 		return  {
 					'user_vertexes' : this.idCounters.user,
 					'channel_vertexes' : this.idCounters.channel,
+					'keyword_vertexes' : this.idCounters.keyword,
 					'is_in_channel_edges' : this.idCounters.iiChannel,
 					'mentions_user_edges' : this.idCounters.mUser,
-					'mentions_channel_edges' : this.idCounters.mChannel
+					'mentions_channel_edges' : this.idCounters.mChannel,
+					'mentions_keyword_edges' : this.idCounters.mKeyword,
+					'used_in_channel' : this.idCounters.uiChannel
 				};
 
 	}; // getModelStatistics
@@ -357,7 +487,7 @@ function SlackGraphModel (teamName) {
 		/*
 		 * Helper function initializes a new gremlin batch object.
 		 * param {number} stage - identifies the graph build stage in which the batch must be executed. Valid values      
-         *                        are 1 (vertices) and 2 (edges). Defaults is 2.
+         *                        are 1 (vertices) and 2 (edges). Default is 2.
 		 */
 		var newGremlinBatch = function(stage) {
 
@@ -367,7 +497,7 @@ function SlackGraphModel (teamName) {
 
 			return {
 						size: 0,			              // batch size
-						graphBuildStage: stage,           // defines the order in which batches must be processed (1 = vertices, must always be procesed first; 2 = edges)
+						graphBuildStage: stage,           // defines the order in which batches must be processed (1 = vertices, must always be processed first; 2 = edges)
 						mIds: [],
 						ddl: '',			              // gremlin graph traversal/manipulation string
 						ddlBindings: {}	                  // variable bindings for ddl
@@ -380,6 +510,8 @@ function SlackGraphModel (teamName) {
 
 		// generate gremlin artifacts for channel vertices
 		if(Object.keys(this.graph.vertices.channels).length > 0) {
+
+			debug('Generating gremlin scripts for ' + Object.keys(this.graph.vertices.channels).length + ' channel vertices.');
 
 			// create new batch; build stage 1
 			gremlinBatch = newGremlinBatch(1);
@@ -416,10 +548,15 @@ function SlackGraphModel (teamName) {
 			}
 
 			gremlinBatch = null;
+
+			debug('Done generating gremlin scripts for channel vertices.');
+
 		}
 
 		// generate gremlin artifacts for user vertices
 		if(Object.keys(this.graph.vertices.users).length > 0) {
+
+			debug('Generating  ' + Object.keys(this.graph.vertices.users).length + ' for user vertices.');
 
 			// create new batch; build stage 1
 			gremlinBatch = newGremlinBatch(1);
@@ -460,11 +597,55 @@ function SlackGraphModel (teamName) {
 
 			gremlinBatch = null;			
 
+			debug('Done generating gremlin scripts for user vertices.');
+
 		}
+
+		// generate gremlin artifacts for keyword vertices 
+		if(Object.keys(this.graph.vertices.keywords).length > 0) {
+
+			debug('Generating  ' + Object.keys(this.graph.vertices.keywords).length + ' for keyword vertices.');
+
+			// create new batch; build stage 1
+			gremlinBatch = newGremlinBatch(1);
+
+			// generate gremlin artifacts for keyword vertices
+			_.forEach(Object.keys(this.graph.vertices.keywords), 
+				      function (keyword) {
+
+						gremlinBatch.ddl = gremlinBatch.ddl + 'def ' + this.graph.vertices.keywords[keyword].modelId + ' = graph.addVertex(T.label,"keyword","keyword",v_' + this.graph.vertices.keywords[keyword].modelId + '_id,"isKeyword",true).id(); l<<' + this.graph.vertices.keywords[keyword].modelId + ';';
+						gremlinBatch.ddlBindings['v_' + this.graph.vertices.keywords[keyword].modelId + '_id'] = keyword;												 	    
+
+						gremlinBatch.mIds.push(this.graph.vertices.keywords[keyword].modelId);
+
+						gremlinBatch.size = gremlinBatch.ddl.length + JSON.stringify(gremlinBatch.ddlBindings).length;
+
+						if(gremlinBatch.size >= maxBatchSize) {
+							gremlinBatch.ddl = 'def l=[];' + gremlinBatch.ddl + 'l;';
+							gremlinBatch.size = gremlinBatch.size + 13;						
+		 					gremlinBatches.push(gremlinBatch);
+		 					gremlinBatch = newGremlinBatch(1);	
+						}		      	 	
+					     
+					  }.bind(this));
+
+
+			if(gremlinBatch.size > 0) {
+				gremlinBatch.ddl = 'def l=[];' + gremlinBatch.ddl + 'l;';
+				gremlinBatch.size = gremlinBatch.size + 13;
+				gremlinBatches.push(gremlinBatch);	
+			}
+
+			gremlinBatch = null;	
+
+			debug('Done generating gremlin scripts for keyword vertices.');		
+
+		}
+
+		debug('Generating gremlin scripts for edges associated with user vertices.');
 
 		// generate gremlin artifacts for edges originating from user vertices
 		var vertexReferences = {};
-
 		gremlinBatch = newGremlinBatch(2);
 
 		/*
@@ -487,124 +668,221 @@ function SlackGraphModel (teamName) {
 			return 	gremlinBatch; 
 		}.bind(this);
 
-			/*
-			  export metadata for edges originating from user vertices
-			  gremlin def uX = g.V().has("userId","uid").next(); uX.addEdge("is_in_channel", g.V().has("channelId","cid").next());
-			 */
+		/*
+		  export metadata for edges originating from user vertices
+		  gremlin def uX = g.V().has("userId","uid").next(); uX.addEdge("is_in_channel", g.V().has("channelId","cid").next());
+		 */
 
-			_.forEach(Object.keys(this.graph.vertices.users), 
-				      function (userId) {
-										                    
-						gremlinBatch = addUserDef(userId, gremlinBatch);
+		_.forEach(Object.keys(this.graph.vertices.users), 
+			      function (userId) {
+									                    
+					gremlinBatch = addUserDef(userId, gremlinBatch);
 
-				      	// add gremlin for is_in_channel edges
-				      	// gremlin: uXX.addEdge("is_in_channel", g.V().has("channelId", v_iicYY_cid).next(), "messageCount", v_iicYY_mc);
-				      	// bindings: v_iicYY_cid : channelId (e.g. C01234567)			      	
-				      	//           v_iicYY_mc : messageCount (e.g. 23)
-				      	if(this.graph.vertices.users[userId].outEdges.hasOwnProperty('is_in_channel')) {
-				      		_.forEach(this.graph.vertices.users[userId].outEdges.is_in_channel, 
-				      			      function(iicEdge) {
+			      	// add gremlin for is_in_channel edges
+			      	// gremlin: uXX.addEdge("is_in_channel", g.V().has("channelId", v_iicYY_cid).next(), "messageCount", v_iicYY_mc);
+			      	// bindings: v_iicYY_cid : channelId (e.g. C01234567)			      	
+			      	//           v_iicYY_mc : messageCount (e.g. 23)
+			      	if(this.graph.vertices.users[userId].outEdges.hasOwnProperty('is_in_channel')) {
+			      		_.forEach(this.graph.vertices.users[userId].outEdges.is_in_channel, 
+			      			      function(iicEdge) {
+									gremlinBatch.ddl = gremlinBatch.ddl + 
+									                   this.graph.vertices.users[userId].modelId + 
+									                   '.addEdge("is_in_channel",g.V().has("channelId", v_' + iicEdge.modelId + '_cid).next(),"messageCount",v_' + iicEdge.modelId + '_mc);'; 
+									gremlinBatch.ddlBindings['v_' + iicEdge.modelId + '_cid'] = iicEdge.channelId;	
+									gremlinBatch.ddlBindings['v_' + iicEdge.modelId + '_mc'] = iicEdge.messageCount;										                   	
+
+								    gremlinBatch.size = gremlinBatch.ddl.length + JSON.stringify(gremlinBatch.ddlBindings).length;
+
+									if(gremlinBatch.size >= maxBatchSize) {
+										gremlinBatch.ddl = 'def g=graph.traversal();' + gremlinBatch.ddl;
+										gremlinBatch.size = gremlinBatch.size + 26;
+										gremlinBatches.push(gremlinBatch);
+										vertexReferences = {};											
+					 					gremlinBatch = addUserDef(userId, newGremlinBatch(2));	
+									}
+
+			      			      }.bind(this));											 	    
+			      	}
+
+			      	// add gremlin for mentions_channel edges
+			      	// gremlin: uXX.addEdge("mentions_channel", g.V().has("channelId", v_mcYY_cid).next(), "mentionCount", v_mcYY_mc, "inChannelId", v_mcYY_icid);
+			      	// bindings: v_mcYY_cid  : channelId (e.g. C01234567)			      	
+			      	//           v_mcYY_icid : inChannelId (e.g. C31234568)
+			      	//           v_mcYY_mc   : mentionCount (e.g. 45)
+			      	if(this.graph.vertices.users[userId].outEdges.hasOwnProperty('mentions_channel')) {
+			      		_.forEach(this.graph.vertices.users[userId].outEdges.mentions_channel, 
+			      			      function(mcEdge) {
+									gremlinBatch.ddl = gremlinBatch.ddl + 
+									                   this.graph.vertices.users[userId].modelId + 
+									                   '.addEdge("mentions_channel",g.V().has("channelId",v_' + mcEdge.modelId + '_cid).next(),"mentionCount",v_' + mcEdge.modelId + '_mc,"inChannelId",v_' + mcEdge.modelId + '_icid';
+									// add inChannelName property, if defined                    	
+									if(mcEdge.hasOwnProperty('inChannelName')) {
+										gremlinBatch.ddl = gremlinBatch.ddl + ',"inChannelName",v_' + mcEdge.modelId + '_icn';
+										gremlinBatch.ddlBindings['v_' + mcEdge.modelId + '_icn'] = mcEdge.inChannelName;											
+									}										                    
+
+									gremlinBatch.ddl = gremlinBatch.ddl + ');'; 
+									                   
+									gremlinBatch.ddlBindings['v_' + mcEdge.modelId + '_cid'] = mcEdge.channelId;	
+									gremlinBatch.ddlBindings['v_' + mcEdge.modelId + '_icid'] = mcEdge.inChannelId;									                   	
+									gremlinBatch.ddlBindings['v_' + mcEdge.modelId + '_mc'] = mcEdge.mentionCount;										                   	
+
+								    gremlinBatch.size = gremlinBatch.ddl.length + JSON.stringify(gremlinBatch.ddlBindings).length;
+
+									if(gremlinBatch.size >= maxBatchSize) {
+										gremlinBatch.ddl = 'def g=graph.traversal();' + gremlinBatch.ddl;
+										gremlinBatch.size = gremlinBatch.size + 26;
+										gremlinBatches.push(gremlinBatch);
+										vertexReferences = {};
+					 					gremlinBatch = addUserDef(userId, newGremlinBatch(2));	
+									}
+
+			      			      }.bind(this));											 	    
+			      	}
+
+					// add gremlin for mentions_user edges
+			      	// gremlin: uXX.addEdge("mentions_user", g.V().has("userId", v_muYY_id).next(), "mentionCount", v_muYY_mc, "inChannelId", v_muYY_icid);
+			      	// bindings: v_muYY_cid  : userId (e.g. U01234567)			      	
+			      	//           v_muYY_icid : inChannelId (e.g. C31234568)
+			      	//           v_muYY_mc   : mentionCount (e.g. 45)
+			      	if(this.graph.vertices.users[userId].outEdges.hasOwnProperty('mentions_user')) {
+			      		_.forEach(this.graph.vertices.users[userId].outEdges.mentions_user, 
+			      			      function(muEdge) {
+
+			      			      	if(vertexReferences[muEdge.userId]) {
 										gremlinBatch.ddl = gremlinBatch.ddl + 
 										                   this.graph.vertices.users[userId].modelId + 
-										                   '.addEdge("is_in_channel",g.V().has("channelId", v_' + iicEdge.modelId + '_cid).next(),"messageCount",v_' + iicEdge.modelId + '_mc);'; 
-										gremlinBatch.ddlBindings['v_' + iicEdge.modelId + '_cid'] = iicEdge.channelId;	
-										gremlinBatch.ddlBindings['v_' + iicEdge.modelId + '_mc'] = iicEdge.messageCount;										                   	
-
-									    gremlinBatch.size = gremlinBatch.ddl.length + JSON.stringify(gremlinBatch.ddlBindings).length;
-
-										if(gremlinBatch.size >= maxBatchSize) {
-											gremlinBatch.ddl = 'def g=graph.traversal();' + gremlinBatch.ddl;
-											gremlinBatch.size = gremlinBatch.size + 26;
-											gremlinBatches.push(gremlinBatch);
-											vertexReferences = {};											
-						 					gremlinBatch = addUserDef(userId, newGremlinBatch(2));	
-										}
-
-				      			      }.bind(this));											 	    
-				      	}
-
-				      	// add gremlin for mentions_channel edges
-				      	// gremlin: uXX.addEdge("mentions_channel", g.V().has("channelId", v_mcYY_cid).next(), "mentionCount", v_mcYY_mc, "inChannelId", v_mcYY_icid);
-				      	// bindings: v_mcYY_cid  : channelId (e.g. C01234567)			      	
-				      	//           v_mcYY_icid : inChannelId (e.g. C31234568)
-				      	//           v_mcYY_mc   : mentionCount (e.g. 45)
-				      	if(this.graph.vertices.users[userId].outEdges.hasOwnProperty('mentions_channel')) {
-				      		_.forEach(this.graph.vertices.users[userId].outEdges.mentions_channel, 
-				      			      function(mcEdge) {
+										                   '.addEdge("mentions_user",' + vertexReferences[muEdge.userId] + ',"mentionCount",v_' + muEdge.modelId + '_mc,"inChannelId",v_' + muEdge.modelId + '_icid'; 
+										gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_icid'] = muEdge.inChannelId;										                   	
+										gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_mc'] = muEdge.mentionCount;	
+			      			      	}
+			      			      	else {
 										gremlinBatch.ddl = gremlinBatch.ddl + 
 										                   this.graph.vertices.users[userId].modelId + 
-										                   '.addEdge("mentions_channel",g.V().has("channelId",v_' + mcEdge.modelId + '_cid).next(),"mentionCount",v_' + mcEdge.modelId + '_mc,"inChannelId",v_' + mcEdge.modelId + '_icid';
-										// add inChannelName property, if defined                    	
-										if(mcEdge.hasOwnProperty('inChannelName')) {
-											gremlinBatch.ddl = gremlinBatch.ddl + ',"inChannelName",v_' + mcEdge.modelId + '_icn';
-											gremlinBatch.ddlBindings['v_' + mcEdge.modelId + '_icn'] = mcEdge.inChannelName;											
-										}										                    
+										                   '.addEdge("mentions_user", g.V().has("userId",v_' + muEdge.modelId + '_id).next(),"mentionCount",v_' + muEdge.modelId + '_mc,"inChannelId",v_' + muEdge.modelId + '_icid'; 
+										gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_id'] = muEdge.userId;	
+										gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_icid'] = muEdge.inChannelId;										                   	
+										gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_mc'] = muEdge.mentionCount;										                   	
+			      			      	}
 
-										gremlinBatch.ddl = gremlinBatch.ddl + ');'; 
-										                   
-										gremlinBatch.ddlBindings['v_' + mcEdge.modelId + '_cid'] = mcEdge.channelId;	
-										gremlinBatch.ddlBindings['v_' + mcEdge.modelId + '_icid'] = mcEdge.inChannelId;									                   	
-										gremlinBatch.ddlBindings['v_' + mcEdge.modelId + '_mc'] = mcEdge.mentionCount;										                   	
+									// add inChannelName property, if defined                    	
+									if(muEdge.hasOwnProperty('inChannelName')) {
+										gremlinBatch.ddl = gremlinBatch.ddl + ',"inChannelName",v_' + muEdge.modelId + '_icn';
+										gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_icn'] = muEdge.inChannelName;											
+									}										                    
 
-									    gremlinBatch.size = gremlinBatch.ddl.length + JSON.stringify(gremlinBatch.ddlBindings).length;
+									gremlinBatch.ddl = gremlinBatch.ddl + ');'; 
 
-										if(gremlinBatch.size >= maxBatchSize) {
-											gremlinBatch.ddl = 'def g=graph.traversal();' + gremlinBatch.ddl;
-											gremlinBatch.size = gremlinBatch.size + 26;
-											gremlinBatches.push(gremlinBatch);
-											vertexReferences = {};
-						 					gremlinBatch = addUserDef(userId, newGremlinBatch(2));	
-										}
+								    gremlinBatch.size = gremlinBatch.ddl.length + JSON.stringify(gremlinBatch.ddlBindings).length;
+									if(gremlinBatch.size >= maxBatchSize) {
+										gremlinBatch.ddl = 'def g=graph.traversal();' + gremlinBatch.ddl;
+										gremlinBatch.size = gremlinBatch.size + 26;
+										gremlinBatches.push(gremlinBatch);
+										vertexReferences = {};
+					 					gremlinBatch = addUserDef(userId, newGremlinBatch(2));	
+									}
 
-				      			      }.bind(this));											 	    
-				      	}
+			      			      }.bind(this));											 	    
+			      	}		      	 	
+				     
 
-						// add gremlin for mentions_user edges
-				      	// gremlin: uXX.addEdge("mentions_user", g.V().has("userId", v_muYY_id).next(), "mentionCount", v_muYY_mc, "inChannelId", v_muYY_icid);
-				      	// bindings: v_muYY_cid  : userId (e.g. U01234567)			      	
-				      	//           v_muYY_icid : inChannelId (e.g. C31234568)
-				      	//           v_muYY_mc   : mentionCount (e.g. 45)
-				      	if(this.graph.vertices.users[userId].outEdges.hasOwnProperty('mentions_user')) {
-				      		_.forEach(this.graph.vertices.users[userId].outEdges.mentions_user, 
-				      			      function(muEdge) {
+			      	// add gremlin for mentions_keyword edges 
+			      	// gremlin: uXX.addEdge("mentions_keyword", g.V().has("keyword", v_mkYY_kw).next());
+			      	// bindings: v_mkYY_kw  : keyword (e.g. dashDB)
+			      	if(this.graph.vertices.users[userId].outEdges.hasOwnProperty('mentions_keyword')) {
+			      		_.forEach(this.graph.vertices.users[userId].outEdges.mentions_keyword, 
+			      			      function(mkEdge) {
+									gremlinBatch.ddl = gremlinBatch.ddl + 
+									                   this.graph.vertices.users[userId].modelId + 
+									                   '.addEdge("mentions_keyword",g.V().has("keyword",v_' + mkEdge.modelId + '_kw).next()';									                    
 
-				      			      	if(vertexReferences[muEdge.userId]) {
-											gremlinBatch.ddl = gremlinBatch.ddl + 
-											                   this.graph.vertices.users[userId].modelId + 
-											                   '.addEdge("mentions_user",' + vertexReferences[muEdge.userId] + ',"mentionCount",v_' + muEdge.modelId + '_mc,"inChannelId",v_' + muEdge.modelId + '_icid'; 
-											gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_icid'] = muEdge.inChannelId;										                   	
-											gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_mc'] = muEdge.mentionCount;	
-				      			      	}
-				      			      	else {
-											gremlinBatch.ddl = gremlinBatch.ddl + 
-											                   this.graph.vertices.users[userId].modelId + 
-											                   '.addEdge("mentions_user", g.V().has("userId",v_' + muEdge.modelId + '_id).next(),"mentionCount",v_' + muEdge.modelId + '_mc,"inChannelId",v_' + muEdge.modelId + '_icid'; 
-											gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_id'] = muEdge.userId;	
-											gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_icid'] = muEdge.inChannelId;										                   	
-											gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_mc'] = muEdge.mentionCount;										                   	
-				      			      	}
+									gremlinBatch.ddl = gremlinBatch.ddl + ');'; 
+									                   
+									gremlinBatch.ddlBindings['v_' + mkEdge.modelId + '_kw'] = mkEdge.keywordId;	
 
-										// add inChannelName property, if defined                    	
-										if(muEdge.hasOwnProperty('inChannelName')) {
-											gremlinBatch.ddl = gremlinBatch.ddl + ',"inChannelName",v_' + muEdge.modelId + '_icn';
-											gremlinBatch.ddlBindings['v_' + muEdge.modelId + '_icn'] = muEdge.inChannelName;											
-										}										                    
+								    gremlinBatch.size = gremlinBatch.ddl.length + JSON.stringify(gremlinBatch.ddlBindings).length;
 
-										gremlinBatch.ddl = gremlinBatch.ddl + ');'; 
+									if(gremlinBatch.size >= maxBatchSize) {
+										gremlinBatch.ddl = 'def g=graph.traversal();' + gremlinBatch.ddl;
+										gremlinBatch.size = gremlinBatch.size + 26;
+										gremlinBatches.push(gremlinBatch);
+										vertexReferences = {};
+					 					gremlinBatch = addUserDef(userId, newGremlinBatch(2));	
+									}
 
-									    gremlinBatch.size = gremlinBatch.ddl.length + JSON.stringify(gremlinBatch.ddlBindings).length;
-										if(gremlinBatch.size >= maxBatchSize) {
-											gremlinBatch.ddl = 'def g=graph.traversal();' + gremlinBatch.ddl;
-											gremlinBatch.size = gremlinBatch.size + 26;
-											gremlinBatches.push(gremlinBatch);
-											vertexReferences = {};
-						 					gremlinBatch = addUserDef(userId, newGremlinBatch(2));	
-										}
+			      			      }.bind(this));											 	    
+			      	}
 
-				      			      }.bind(this));											 	    
-				      	}		      	 	
-					     
-					  }.bind(this));
+				  }.bind(this)); // add edges to user vertex
+
+		if(gremlinBatch.size > 0) {					
+			gremlinBatch.ddl = 'def g=graph.traversal();' + gremlinBatch.ddl;
+			gremlinBatch.size = gremlinBatch.size + 26;
+			gremlinBatches.push(gremlinBatch);
+		}
+
+		debug('Done generating gremlin scripts for edges associated with user vertices.');
+
+		debug('Generating gremlin scripts for edges associated with keyword vertices.');
+
+		vertexReferences = {};
+		gremlinBatch = newGremlinBatch(2);
+
+		/*
+		 * Graph traversal helper; looks up keyword id in graph that will be referenced in later graph traversals
+		 */
+		var addKeywordDef = function (keyword, gremlinBatch) {
+	      	// fetch vertex id for keyword
+	      	// gremlin: def kXX = g.V().hasLabel("keyword").has("keyword", v_kXX_kw).next();
+	      	// bindings: v_kXX_id : keyword (e.g. Cloudant)
+			gremlinBatch.ddl = gremlinBatch.ddl + 
+							   'def ' + 
+			                   this.graph.vertices.keywords[keyword].modelId + 
+			                   '=g.V().hasLabel("keyword").has("keyword", v_' + this.graph.vertices.keywords[keyword].modelId + '_kw).next(); ';
+			gremlinBatch.ddlBindings['v_' + this.graph.vertices.keywords[keyword].modelId + '_kw'] = keyword;
+
+			// add userId to this batch's lookup
+			vertexReferences[keyword] = this.graph.vertices.keywords[keyword].modelId;
+
+			return 	gremlinBatch; 
+		}.bind(this);
+
+		/*
+		  create gremlin for [keyword] used_in_channel edge
+		  gremlin def kX = g.V().hasLabel("keyword").has("keyword","v_uicYY_kw").next(); kX.addEdge("used_in_channel", g.V().has("channelId","cid").next());
+		 */
+
+		_.forEach(Object.keys(this.graph.vertices.keywords), 
+			      function (keyword) {
+
+				    gremlinBatch = addKeywordDef(keyword, gremlinBatch);	
+
+				    _.forEach(this.graph.vertices.keywords[keyword].outEdges.used_in_channel, 
+				      		  function(uicEdge) {
+				      			    /*
+										{
+											edgeId: null,
+											modelId: 'uic' + <counter>,																		  			
+											channelId: channelId
+									    }
+									*/  	
+
+									gremlinBatch.ddl = gremlinBatch.ddl + 
+									                   this.graph.vertices.keywords[keyword].modelId + 
+									                   '.addEdge("used_in_channel",g.V().has("channelId", v_' + uicEdge.modelId + '_cid).next());'; 
+									gremlinBatch.ddlBindings['v_' + uicEdge.modelId + '_cid'] = uicEdge.channelId;										                   	
+
+								    gremlinBatch.size = gremlinBatch.ddl.length + JSON.stringify(gremlinBatch.ddlBindings).length;
+
+									if(gremlinBatch.size >= maxBatchSize) {
+										gremlinBatch.ddl = 'def g=graph.traversal();' + gremlinBatch.ddl;
+										gremlinBatch.size = gremlinBatch.size + 26;
+										gremlinBatches.push(gremlinBatch);
+										vertexReferences = {};											
+					 					gremlinBatch = addKeywordDef(keyword, newGremlinBatch(2));	
+									}
+			      			    }.bind(this));
+				  }.bind(this));
 
 			if(gremlinBatch.size > 0) {					
 				gremlinBatch.ddl = 'def g=graph.traversal();' + gremlinBatch.ddl;
@@ -612,8 +890,11 @@ function SlackGraphModel (teamName) {
 		 		gremlinBatches.push(gremlinBatch);
 			}
 
-			gremlinBatch = null;
-			vertexReferences = {};
+			debug('Done generating gremlin scripts for edges associated with keyword vertices.');
+
+			/*
+			 *  Cleanup
+			 */
 
 			var gremlinBatchSizeHWM = 0;
 			var count = 0, counter = 1;
@@ -663,6 +944,7 @@ function SlackGraphModel (teamName) {
 	 * @returns {string} gremlinArtifacts.ddl - vertex gremlin script
 	 * @returns {string} gremlinArtifacts.bindings [] - vertex gremlin variable bindings for gremlinArtifacts.ddl
 	 */
+	 /*
 	SlackGraphModel.prototype.exportGremlinArtifacts = function() {
 
 		var gremlinArtifacts = [];
@@ -723,6 +1005,28 @@ function SlackGraphModel (teamName) {
 				  }.bind(this));
 
 
+		ddl = null;
+		ddlBindings = null;
+
+		// generate gremlin artifacts for keyword vertices
+		_.forEach(Object.keys(this.graph.vertices.keywords), 
+			      function (keyword) {
+
+			      	ddlBindings = {};
+
+					ddl = 'def  ' + this.graph.vertices.keywords[keyword].modelId + ' = graph.addVertex(T.label, "keyword", "keyword", v_' + this.graph.vertices.keyword[keyword].modelId + '_id,\"isKeyword\", true).id(); l << ' + this.graph.vertices.keywords[keyword].modelId + ';';
+					ddlBindings['v_' + this.graph.vertices.keywords[keyword].modelId + '_id'] = keyword;												 	    
+
+
+					gremlinArtifacts.push({ 
+											mId: this.graph.vertices.keywords[keyword].modelId,
+											ddl: ddl,
+											bindings: ddlBindings
+										  });			      	 	
+				     
+				  }.bind(this));
+
+
 		// export metadata for edges originating from user vertices
 		// gremlin artifacts: <fromVertex>.addEdge(<edge_label>, <toVertex>)
 		//                   def uX = g.V().has("userId","uid").next(); uX.addEdge("is_in_channel", g.V().has("channelId","cid").next())
@@ -758,6 +1062,7 @@ function SlackGraphModel (teamName) {
 		return gremlinArtifacts;
 
 	};
+	*/
 
 	/* ------------------------------------------------------------------------------------------------
 	 *
@@ -785,8 +1090,10 @@ function SlackGraphModel (teamName) {
 			// load uuid counters
 			sgm.idCounters.user = graphModel['model-info']['uuid-counters'].user;
 			sgm.idCounters.channel = graphModel['model-info']['uuid-counters'].channel;
+			sgm.idCounters.keyword = graphModel['model-info']['uuid-counters'].keyword;
 			sgm.idCounters.mUser = graphModel['model-info']['uuid-counters'].mUser;
 			sgm.idCounters.mChannel = graphModel['model-info']['uuid-counters'].mChannel;
+			sgm.idCounters.mKeyword = graphModel['model-info']['uuid-counters'].mKeyword;
 			sgm.idCounters.iiChannel = graphModel['model-info']['uuid-counters'].iiChannel;
 
 			// load vertices and their associated edges 

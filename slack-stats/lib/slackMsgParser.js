@@ -1,3 +1,18 @@
+//-------------------------------------------------------------------------------
+// Copyright IBM Corp. 2016
+//
+// Licensed under the Apache License, Version 2.0 (the 'License');
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an 'AS IS' BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//-------------------------------------------------------------------------------
 'use strict';
 
 var util = require('util');
@@ -25,7 +40,7 @@ var BasicMsg = require('./messages/basicMsg.js'),
 	UnpinnedItemMsg = require('./messages/unpinnedItemMsg.js');
 
 /**
- * 
+ * Basic Slack message parser.
  * @param {Object} slackMsgRecord - a slack message object
  * @return {Object} slackMsg - a sub-type of messages/basicMsg
  */
@@ -101,8 +116,8 @@ var parseMsg = function(slackMsgRecord) {
 						
 		default:
 					if(slackMsgRecord.subtype) {
-						console.log('Parser issue: Unknown subtype ' + slackMsgRecord.subtype);
-						console.log('FFDC: ' + util.inspect(slackMsgRecord,5));
+						console.error('Parser issue: Unknown subtype ' + slackMsgRecord.subtype);
+						console.error('FFDC: ' + util.inspect(slackMsgRecord,5));
 						msg = new BasicMsg(slackMsgRecord.text, slackMsgRecord.ts);
 					}
 					else {

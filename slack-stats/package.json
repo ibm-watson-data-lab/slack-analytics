@@ -11,9 +11,12 @@
   "dependencies": {
     "argv": "0.0.2",
     "async": "^2.0.0-rc.3",
+    "cfenv": "^1.0.3",
     "debug": "^2.2.0",
+    "events": "^1.1.1",
     "fs": "0.0.2",
     "lodash": "^4.11.2",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "watson-developer-cloud": "^1.12.2"
   }
 }

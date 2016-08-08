@@ -1,0 +1,15 @@
+{
+  "alchemy_api": [
+    {
+      "name": "slack-alchemy-api",
+      "label": "alchemy_api",
+      "plan": "free",
+      "credentials": {
+        "url": "TODO-REPLACE-WITH-your-Alchemy-API-instance-URL",
+        "note": "It may take up to 5 minutes for this key to become active",
+        "apikey": "TODO-REPLACE-WITH-your-Alchemy-API-instance-key"
+      }
+    }
+  ]        
+}
+

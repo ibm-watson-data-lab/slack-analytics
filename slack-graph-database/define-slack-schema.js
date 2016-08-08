@@ -83,10 +83,9 @@ const IBMGraphClient = require('ibm-graph-client');
  */
 
  var GraphClient = new IBMGraphClient({url: graphServiceCredentials.apiURL, 
-                                   username: graphServiceCredentials.username, 
-                                   password: graphServiceCredentials.password});
+                                       username: graphServiceCredentials.username, 
+                                       password: graphServiceCredentials.password});
 
- 
 /*
  *  Create schema for Slack graph; see http://s3.thinkaurelius.com/docs/titan/1.0.0/schema.html
  */
@@ -102,9 +101,6 @@ GraphClient.session(function (error, token){
                             if(error) {
                                console.error('Error defining Slack schema in IBM Graph: ' + error);
                                console.error('Details: ' + response.message);
-console.log(require('util').inspect(response));                               
-console.log(require('util').inspect(response.message)); 
-console.log(require('util').inspect(error)); 
                             }
                             else {
                                 console.log('IBM Graph response: ' + response.status.code + ' ' + response.status.message);

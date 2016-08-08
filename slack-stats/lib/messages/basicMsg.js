@@ -3,14 +3,16 @@
 var consts = require('./consts.js');
 
 /**
- *
+ * Represents a basic Slack message.
  *
  */
 var BasicMsg = function (_text, _timestamp, _type, _msgClass) {
 
+	this.abc = 'def';
+
 	var type = _type || 'unknown';
 	var timestamp = _timestamp;
-	var text = _text; 
+	var text = _text || ''; 
 	var msgClass = _msgClass || consts.UNKNOWN_MSG_CLASS;
 
 	this.getText = function() {
@@ -43,6 +45,10 @@ var BasicMsg = function (_text, _timestamp, _type, _msgClass) {
 
 	this.isBotMsg = function() {
 		return msgClass === consts.BOT_MSG_CLASS;
+	};
+
+	this.toJSON = function() {
+		return JSON.stringify({type: type, timestamp: timestamp, text: text});
 	};
 
 };
