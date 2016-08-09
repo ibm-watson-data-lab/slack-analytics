@@ -79,8 +79,6 @@ const IBMGraphClient = require('ibm-graph-client');
 
   });
 
-
-var script = '';
   /*
       sample gremlin scripts
   def g = graph.traversal(); g.V(16424)
