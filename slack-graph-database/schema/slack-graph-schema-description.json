@@ -1,0 +1,157 @@
+{
+  "vertices": [
+    {
+      "label": "user",
+      "dataType ": "vertex",
+      "description": "Slack user",
+      "properties": [
+        {
+          "userName": {
+            "dataType ": "String",
+            "cardinality": "SINGLE",
+            "description": "Slack user name (e.g. somebody)"
+          }
+        },
+        {
+          "userId": {
+            "dataType ": "String",
+            "cardinality": "SINGLE",
+            "description": "Internal slack user id (Uxxxxxxx)"
+          }
+        },
+        {
+          "isUser": {
+            "dataType ": "Boolean",
+            "cardinality": "SINGLE",
+            "description": "Always true for user vertices"
+          }
+        }
+      ]
+    },
+    {
+      "label": "channel",
+      "dataType ": "vertex",
+      "description": "Slack channel",
+      "properties": [
+        {
+          "channelName": {
+            "dataType ": "String",
+            "cardinality": "SINGLE",
+            "description": "Slack channel name (e.g. someChannel)"
+          }
+        },
+        {
+          "channelId": {
+            "dataType ": "String",
+            "cardinality": "SINGLE",
+            "description": "Internal slack channel id (Cxxxxxxx)"
+          }
+        },
+        {
+          "isChannel": {
+            "dataType ": "Boolean",
+            "cardinality": "SINGLE",
+            "description": "Always true for channel vertices"
+          }
+        }
+      ]
+    },
+    {
+      "label": "keyword",
+      "dataType ": "vertex",
+      "description": "Keyword or phrase",
+      "properties": [
+        {
+          "keyword": {
+            "dataType ": "String",
+            "cardinality": "SINGLE",
+            "description": "keyword or phrase (e.g. cloudant)"
+          }
+        },
+        {
+          "isKeyword": {
+            "dataType ": "Boolean",
+            "cardinality": "SINGLE",
+            "description": "Always true for keyword vertices"
+          }
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "label": "is_in_channel",
+      "dataType ": "edge",
+      "description": "[user] is_in_channel [channel]",
+      "properties": [
+        {
+          "messageCount": {
+            "dataType ": "Integer",
+            "cardinality": "SINGLE",
+            "description": "Number of messages in [channel] that are attributed to [user]"
+          }
+        }
+      ]
+    },
+    {
+      "label": "mentions_channel",
+      "dataType ": "edge",
+      "description": "[user] mentions_channel [channel]",
+      "properties": [
+        {
+          "mentionCount": {
+            "dataType ": "Integer",
+            "cardinality": "SINGLE",
+            "description": "Number of times [user] mentioned [channel] in [inChannelId]"
+          },
+          "inChannelName": {
+            "dataType ": "String",
+            "cardinality": "SINGLE",
+            "description": "name of the channel in which [user] mentioned [channel] (e.g. thischannel)"
+          },
+          "inChannelId": {
+            "dataType ": "String",
+            "cardinality": "SINGLE",
+            "description": "id of the channel in which [user] mentioned [channel] (e.g. Cxxxxxx)"
+          }
+        }
+      ]
+    },
+    {
+      "label": "mentions_user",
+      "dataType ": "edge",
+      "description": "[user] mentions_user [user]",
+      "properties": [
+        {
+          "mentionCount": {
+            "dataType ": "Integer",
+            "cardinality": "SINGLE",
+            "description": "Number of times [user] mentioned [user] in [inChannelId]"
+          },
+          "inChannelName": {
+            "dataType ": "String",
+            "cardinality": "SINGLE",
+            "description": "name of the channel in which [user] mentioned [user] (e.g. thischannel)"
+          },
+          "inChannelId": {
+            "dataType ": "String",
+            "cardinality": "SINGLE",
+            "description": "id of the channel in which [user] mentioned [user] (e.g. Cxxxxxx)"
+          }
+        }
+      ]
+    },
+    {
+      "label": "mentions_keyword",
+      "dataType ": "edge",
+      "description": "[user] mentions_keyword [keyword]",
+      "properties": []
+    },
+    {
+      "label": "used_in_channel",
+      "dataType ": "edge",
+      "description": "[keyword] used_in_channel [channel]",
+      "properties": []
+    }
+  ]
+}
