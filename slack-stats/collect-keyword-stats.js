@@ -237,7 +237,7 @@ const keywordExtractor = require('./lib/keywordExtractor');
 	});
 
 	stream.once('open', 
-				function(fd) {
+				function() {
 					stream.write('{ "slack_team_name": "' + slackTeamName + '",');
 					stream.write('"collection_date": "' + new Date().toISOString() + '",');
 					stream.write('"keyword_statistics": [');

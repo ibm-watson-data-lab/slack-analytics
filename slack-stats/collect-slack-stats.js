@@ -239,7 +239,7 @@ console.time('Elapsed time');
 					           			console.log('Saving statistics to ' + outFile);
 
 					           			var stream = fs.createWriteStream(outFile);
-					           			stream.once('open', function(fd) {
+					           			stream.once('open', function() {
 						           			stream.write('[');
 						           			for(var i = 0; i < jobResults.length; i++)	 {
 						           				stream.write(jobResults[i].toJSON());

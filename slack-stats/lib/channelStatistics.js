@@ -45,6 +45,21 @@ var ChannelStatistics = function (_channelName) {
 							   },
 		calendarDateMessageCount = {};				// #messages per day
 							   
+	// -------------------------------------------------------------------------------------
+
+	/**
+	 * Utility function, extracting the calendar date from a slack timestamp
+	 * @returns {string} calendar date formatted according to ISO 8601 (YYYY-MM-DD)
+	 */
+	var getDateString = function(slackTimestamp) {
+
+		var date = new Date(slackTimestamp.substring(0,slackTimestamp.indexOf('.')) * 1000);
+
+		return (date.toISOString().substring(0,10));
+	};
+
+	// -------------------------------------------------------------------------------------
+
 
 	/**
 	 * Updates channel statistics based 
@@ -54,7 +69,7 @@ var ChannelStatistics = function (_channelName) {
 	this.update = function(slackMessageObj) {
 
 		// only accept slack message objects inheriting from the BasicMsg class
-		if((!slackMessageObj)||(! slackMessageObj instanceof BasicMsg)) {
+		if((!slackMessageObj)||(! (slackMessageObj instanceof BasicMsg))) {
 			return;
 		}
 
@@ -238,20 +253,6 @@ var ChannelStatistics = function (_channelName) {
 				  	' "messages_per_day": ' + 
 						JSON.stringify(toArray(calendarDateMessageCount)) + 
 		       '}}';
-	};
-						
-
-	// -------------------------------------------------------------------------------------
-
-	/**
-	 * Utility function, extracting the calendar date from a slack timestamp
-	 * @returns {string} calendar date formatted according to ISO 8601 (YYYY-MM-DD)
-	 */
-	var getDateString = function(slackTimestamp) {
-
-		var date = new Date(slackTimestamp.substring(0,slackTimestamp.indexOf('.')) * 1000);
-
-		return (date.toISOString().substring(0,10));
 	};
 
 };

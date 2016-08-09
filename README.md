@@ -1,5 +1,7 @@
 ### Setup Analytics for Slack
 
+![Build status](https://travis-ci.org/ibm-cds-labs/slack-analytics.svg?branch=master)
+
 1. Clone the Analytics for Slack artifacts
 
  	```
