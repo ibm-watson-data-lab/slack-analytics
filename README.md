@@ -6,18 +6,20 @@ The Analytics for Slack demo utilizes the following Bluemix services:
  * [IBM Graph](https://console.ng.bluemix.net/catalog/services/ibm-graph/)
  * [Watson Alchemy API](https://console.ng.bluemix.net/catalog/services/alchemyapi/)
 
+If you don't have a Bluemix account yet, [sign up](http://www.ibm.com/cloud-computing/bluemix/). It only takes a minute.
+
 ###Prerequisites
 
 To set up this analytics for Slack demo you need to:
  * [download and install git](https://git-scm.com/download)
  * [download and install Node.js](https://nodejs.org/en/download/)
- * [download and install Cloud Foundry CLI](https://github.com/cloudfoundry/cli)
+ * [download and install Cloud Foundry CLI](https://console.ng.bluemix.net/docs/starters/install_cli.html)
  * have administrative access to a Slack team to download message archives and configure an integration
 
 
 ###Getting started
 
-1. Clone the Analytics for Slack artifacts
+1. Clone the Analytics for Slack demo artifacts
 
  	```
  	$ git clone https://github.com/ibm-cds-labs/slack-analytics.git
