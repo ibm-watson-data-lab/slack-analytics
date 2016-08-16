@@ -67,15 +67,19 @@ const keywordExtractor = require('./lib/keywordExtractor');
 
 	var alchemyServiceCredentials = appEnv.getServiceCreds('slack-alchemy-api');
 
+	// validate command line parameters	  
+	var argvInvalid = false;
+
 	if(! alchemyServiceCredentials) {
 	 	console.error('This application is not bound to an Alchemy API service instance. Set the VCAP_SERVICES environment variable or add the service information to file vcap_services.json.');
-	 	process.exit(1);
+	 	argvInvalid = true;
 	}
 
 	/*
  	 * Process command line parameters
  	 */
-	argv.info('Use this script to collect social statistics from a set of Slack message files.\n' + 
+	argv.info('Use this script to collect keyword statistics from a set of Slack message files.\n' +
+	          'Customize vcap_services_template.json before running this script to bind an Alchemy API service instance. \n' +
 		      'Invoke this script using option --expose-gc providing the arguments listed below.\n');
 
 	const args = argv.option([
@@ -88,13 +92,10 @@ const keywordExtractor = require('./lib/keywordExtractor');
 
 	const messageFileDirectory = args.options.dir || '',
 		  slackTeamName = args.options.name,
-		  channelFile = args.options.channel || path.join(messageFileDirectory, 'channels.json'); // use default location if not specified
-
-	// validate command line parameters	  
-	var argvInvalid = false;	  
+		  channelFile = args.options.channel || path.join(messageFileDirectory, 'channels.json'); // use default location if not specified  
 
 	if(! messageFileDirectory) {
-		console.error('Missing -d argument. Specify the Slack message directory option: -d </path/to/extracted/slack/message/files>.');		
+		console.error('Missing -d argument. Specify the Slack message directory option: -d </path/to/extracted/slack/message/files>');		
 		argvInvalid = true;
 	}
 	else {
