@@ -19,12 +19,6 @@ To set up this analytics for Slack demo you need to:
 
 ###Getting started
 
-1. Clone the Analytics for Slack demo artifacts
-
- 	```
- 	$ git clone https://github.com/ibm-cds-labs/slack-analytics.git
- 	$ cd slack-analytics
- 	```
 
 2. Collect [Slack statistics](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats) for your Slack team
  
