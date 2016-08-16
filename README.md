@@ -1,4 +1,4 @@
-### Set Up Analytics for Slack
+## Set Up Analytics for Slack
 
 ![Build status](https://travis-ci.org/ibm-cds-labs/slack-analytics.svg?branch=master)
 
