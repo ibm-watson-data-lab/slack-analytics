@@ -1,4 +1,4 @@
-[ **< Analytics for Slack Home**](https://github.com/ibm-cds-labs/slack-analytics)
+[ **< Analytics for Slack** Home](https://github.com/ibm-cds-labs/slack-analytics)
 ## Collect and prepare Slack data
 
 Slack message archives contain records of user activity in [public] channels. These records identify users, topics, references to other users, references to channels, etc. To gain insights, like who is active in a channel, and which topics are discussed in a channel, follow these instructions to extract the relevant information for later processing.
