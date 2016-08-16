@@ -1,4 +1,4 @@
-### Setup Analytics for Slack
+### Set Up Analytics for Slack
 
 ![Build status](https://travis-ci.org/ibm-cds-labs/slack-analytics.svg?branch=master)
 
@@ -17,16 +17,16 @@ To set up this analytics for Slack demo you need to:
  * have administrative access to a Slack team to download message archives and configure an integration
 
 
-###Getting started
+###Set Up
 
 
-2. Collect [Slack statistics](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats) for your Slack team
+2. Collect [Slack statistics](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats) for your Slack team.
  
-3. Setup the desired analysis environment and load the Slack statistics
+3. Set up the desired analysis environment and load the Slack statistics.
 
  	* [IBM Graph](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-graph-database)
  	 
-4. Explore the sample applications
+4. Explore the sample app.
  
   * [Query user and channel activity in Slack](https://github.com/ibm-cds-labs/slack-analytics-about-service) 
 
