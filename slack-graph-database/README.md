@@ -1,8 +1,9 @@
-### Prepare IBM Graph for Slack Analytics
+[ **< Set Up Analytics for Slack Home Page**](https://github.com/ibm-cds-labs/slack-analytics) < [Collect and Prepare Slack Data](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats)
+## Prepare IBM Graph for Slack Analytics
 
-Follow the Slack [statistics collection instructions](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats) to collect the statistics that you want to load into IBM Graph.
+If you haven't already, follow the Slack [statistics collection instructions](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats) to collect the data that you want to load into IBM Graph.
 
-####Prerequisites
+###Prerequisites
 
  * Take note of the location of the two generated statistics files `<slack-team-name>-stats.json` and `<slack-team-name>-keyword-stats.json`. 
  * Take note of the location of `channels.json` and `users.json`. These two files are included in the extracted Slack message archive file.
