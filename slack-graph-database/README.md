@@ -1,4 +1,4 @@
-[ **< Set Up Analytics for Slack Home Page**](https://github.com/ibm-cds-labs/slack-analytics) < [Collect and Prepare Slack Data](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats)
+[ **< Analytics for Slack** Home](https://github.com/ibm-cds-labs/slack-analytics) 
 ## Prepare IBM Graph for Slack Analytics
 
 If you haven't already, follow the Slack [statistics collection instructions](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats) to collect the data that you want to load into IBM Graph.
