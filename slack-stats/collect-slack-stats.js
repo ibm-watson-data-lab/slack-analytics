@@ -21,7 +21,7 @@ const fs = require('fs'),
     path = require('path'),
 	async = require('async'),
 	_ = require('lodash'),
-	debug = require('debug')('slack_graph_setup');
+	debug = require('debug')('slack_stats:data_collection');
 
 const slackMsgParser = require('./lib/slackMsgParser.js');
 const slackMsgTextParser = require('./lib/slackMsgTextParser.js');
@@ -102,66 +102,73 @@ var jobResults = [];
 /*
  * Process command line parameters
  */
-	argv.info('Use this script to collect statistics from a set of Slack message files. Invoke this script using option --expose-gc providing the arguments listed below.');
+	argv.info('Use this script to collect social statistics from a set of Slack message files.\n' + 
+		      'Invoke this script using option --expose-gc providing the arguments listed below.\n');
 
 	const args = argv.option([
-								{ name: 'dir', short: 'd', description: 'Location of unloaded Slack messages', type: 'string', example: '-d /path/to/extracted/slack/message_dir/' },
+								{ name: 'dir', short: 'd', description: 'Location of unloaded Slack messages', type: 'string', example: '-d </path/to/extracted/slack/message_dir/>' },
 								{ name: 'name', short: 'n', description: 'Slack team name', type: 'string', example: '-n my-slack-team' },
-								{ name: 'channel', short: 'c', description: 'Path to exported channels.json', type: 'string', example: '-c /path/to/extracted/slack/channels.json' }
+								{ name: 'channel', short: 'c', description: 'Path to exported channels.json if this file is not located in the default location.', type: 'string', example: '-c </path/to/extracted/slack/>channels.json' }
 							 ]).run();
 
 	debug('Command line arguments: ' + JSON.stringify(args));
 
 	const messageFileDirectory = args.options.dir || '',
 		  slackTeamName = args.options.name,
-		  channelFile = args.options.channel || path.join(messageFileDirectory, 'channels.json', path.sep); // use default location if not specified
+		  channelFile = args.options.channel || path.join(messageFileDirectory, 'channels.json'); // use default location if not specified
 
 	var argvInvalid = false;	  
 
 	if(! messageFileDirectory) {
-		console.error('Error. Specify the Slack message directory option: -d </path/to/extracted/slack/message/files>.');		
+		console.error('Missing -d argument. Specify the Slack message directory option: -d </path/to/extracted/slack/message/files>.');		
 		argvInvalid = true;
 	}
 	else {
 		// verify that messageFileDirectory is a directory
 		try {
 			if(! fs.statSync(messageFileDirectory).isDirectory()) {
-				console.error('Error. ' + messageFileDirectory + ' is not a directory.');		
+				console.error('Invalid -d argument. "' + messageFileDirectory + '" is not a directory.');		
 			 	argvInvalid = true;
 			}	
 		}
 		catch(ex) {
-			console.error('Error. ' + messageFileDirectory + ' is invalid: ' + ex);
+			console.error('Invalid -d argument. "' + messageFileDirectory + '" is invalid: ' + ex);
 			argvInvalid = true;
 		}
 	}
 
 	if(! slackTeamName) {
-		console.error('Error. Specify the Slack team name option: -n <my-slack-team-name>');		
+		console.error('Missing -n argument. Specify the Slack team name option: -n <my-slack-team-name>');		
 		argvInvalid = true;
 	}
 
-	if(channelFile) {
-		// verify that messageFileDirectory is a directory
+	if(messageFileDirectory && channelFile) {
+
+		if(! args.options.channel) {
+			console.log('Argument -c was not specified. Using default.');	  
+		}
+
+		// verify that channelFile is a file
 		try {
 			if(! fs.statSync(channelFile).isFile()) {
-				console.error('Error. ' + channelFile + ' is not a file.');		
+				console.error('Invalid -c argument. "' + channelFile + '" is not valid. It is not a file.');		
 			 	argvInvalid = true;
 			}	
 		}
 		catch(ex) {
-			console.error('Error. Specify the channel option: -c </path/to/extracted/slack/package.json>');		
+			console.error('Invalid -c argument. "' +  channelFile + '" is not valid: ' + ex + '.');
 			argvInvalid = true;
 		}
 	}
 
 	if(! _.find(process.execArgv, function(argv){return '--expose-gc' === argv;})) {
-		console.error('Error. This script must be invoked as follows: node --expose-gc generate-slack-statistics.js <options>');		
+		console.error('Error. This script must be invoked as follows: node --expose-gc collect-slack-stats.js <options>');		
 		argvInvalid = true;		
 	}
 
 	if(argvInvalid) {
 			argv.help();
+			console.log('Example: node --expose-gc collect-slack-stats.js -d "/home/IBM CDS Slack export Apr 28 2016" -n "IBM Cloud Data Services"');
 			process.exit(1);
 	}
 

@@ -1,11 +1,12 @@
 {
-  "name": "slack-setup",
+  "name": "slack-stats",
   "version": "0.1.0",
-  "description": "Slack analytics setup",
+  "description": "Collect Slack statistics",
   "main": "collect-slack-stats.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "engines" : {"node" : ">=4.4"},
   "author": "ptitzler@us.ibm.com",
   "license": "Apache-2.0",
   "dependencies": {
