@@ -3,14 +3,14 @@
 
 Slack message archives contain records of user activity in [public] channels. These records identify users, topics, references to other users, references to channels, etc. To gain insights, like who is active in a channel, and which topics are discussed in a channel, follow these instructions to extract the relevant information for later processing.
 
-![Building a Slack graph](http://developer.ibm.com/clouddataservices/wp-content/uploads/sites/47/2016/08/sa_build_graph.png)
+![Building a Slack graph](http://developer.ibm.com/clouddataservices/wp-content/uploads/sites/47/2016/08/build_graph_flow.png)
 
 ##Prerequisites
 Before you can collect and prepare the data, verify 
 
  * that you have administrator access to the Slack team of interest (or can access the team's exported message archives),
  * that Node.js is installed locally and
- * have a Bluemix account that can get access to a [Watson Alchemy API service](https://console.ng.bluemix.net/catalog/services/alchemyapi/) in Bluemix. (You'll instantiate the service in the steps that follow.)
+ * have a Bluemix account that can get access to a [Watson Alchemy API service](https://console.ng.bluemix.net/catalog/services/alchemyapi/) in Bluemix. (You'll provision the service in the steps that follow.)
 
 ##Preparation
 
@@ -59,7 +59,7 @@ Before you can collect and prepare the data, verify
 	  $ npm install
 	  ```
 	  
-	If you get npm warnings, you can ignore them.
+	> If you get npm warnings, you can ignore them.
   
 ## Collect Slack statistics
 
@@ -72,6 +72,8 @@ Social statistics track relationships between users and Slack channels, such as 
 1. Run `collect-slack-stats.js` and specify the location of the extracted message files and the Slack team name as parameters.
 
     ```
+    $ pwd
+    slack-analytics/slack-stats
     $ node --expose-gc collect-slack-stats.js -d </path/to/extracted/zip-file/> -n <slack-team-name> 
     ```
     
@@ -162,9 +164,11 @@ Keyword statistics associate keywords with users that mentioned them and channel
 
     > Note: Alchemy's free plan allows for up to 1,000 API invocations per day. Once the limit is reached (`{"error":"daily-transaction-limit-exceeded","code":400}`) the keyword collection process is stopped.
 
-    Run `collect-keyword-stats.js` again specifying the location of the extracted message files and the Slack team name as parameters. To do so, cd into your `slack-stats` directory. Then (after entering the path to your extracted message files and team name again) run:
+    Run `collect-keyword-stats.js` specifying the location of the extracted message files and the Slack team name as parameters. To do so, cd into your `slack-stats` directory. Then (after entering the path to your extracted message files and team name again) run:
     
    ```
+    $ pwd
+    slack-analytics/slack-stats
     $ node --expose-gc collect-keyword-stats.js -d </path/to/extracted/zip-file/> -n <slack-team-name>
    ```
 
