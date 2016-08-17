@@ -1,4 +1,4 @@
-[ **< Analytics for Slack** Home](https://github.com/ibm-cds-labs/slack-analytics)
+[ **< Analytics for Slack Home**](https://github.com/ibm-cds-labs/slack-analytics)
 ## Collect and prepare Slack data
 
 Slack message archives contain records of user activity in [public] channels. These records identify users, topics, references to other users, references to channels, etc. To gain insights, like who is active in a channel, and which topics are discussed in a channel, follow these instructions to extract the relevant information for later processing.
@@ -88,7 +88,8 @@ Upon successful completion, the user and channel statistics for team `<slack-tea
 
 Keyword statistics associate keywords with users that mentioned them and channels that they were used in. This optional collection process leverages the Watson Alchemy keyword API to extract the relevant information from the Slack message archive files.
 
- 1. Provision a new Alchemy API service instance in Bluemix: 
+ 1. [Log in to Cloud Foundry](https://docs.cloudfoundry.org/cf-cli/getting-started.html).
+ 2. Provision a new Alchemy API service instance in Bluemix: 
 
     ```
     $ cf create-service "alchemy_api" free slack-alchemy-api
@@ -109,7 +110,7 @@ Keyword statistics associate keywords with users that mentioned them and channel
     name
     Credentials-1
   
-    $ cf service-key aslack-alchemy-api Credentials-1
+    $ cf service-key slack-alchemy-api Credentials-1
     Getting key Credentials-1 for service instance slack-alchemy-api as some.user@some.company...
     {
      "apikey": "1234567890ALCHEMYKEY0987654321",
@@ -159,10 +160,11 @@ Keyword statistics associate keywords with users that mentioned them and channel
 
     > Note: Alchemy's free plan allows for up to 1,000 API invocations per day. Once the limit is reached (`{"error":"daily-transaction-limit-exceeded","code":400}`) the keyword collection process is stopped.
 
-    Run `collect-keyword-stats.js` and specify the location of the extracted message files and the Slack team name as parameters.
-```
+    Run `collect-keyword-stats.js` and specify the location of the extracted message files and the Slack team name as parameters. To do so, cd into your `slack-stats` directory and then run:
+    
+   ```
     $ node --expose-gc collect-keyword-stats.js -d </path/to/extracted/zip-file/> -n <slack-team-name>
-```
+   ```
 
     > If file `channels.json` is not located in `</path/to/extracted/zip-file/>` you must specify option `-c </path/to/channels.json>`
 
