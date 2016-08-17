@@ -160,7 +160,7 @@ Keyword statistics associate keywords with users that mentioned them and channel
 
     > Note: Alchemy's free plan allows for up to 1,000 API invocations per day. Once the limit is reached (`{"error":"daily-transaction-limit-exceeded","code":400}`) the keyword collection process is stopped.
 
-    Run `collect-keyword-stats.js` and specify the location of the extracted message files and the Slack team name as parameters. To do so, cd into your `slack-stats` directory and then run:
+    cd into your `slack-stats` directory. Then (after entering the path to your extracted message files and team name again) run:
     
    ```
     $ node --expose-gc collect-keyword-stats.js -d </path/to/extracted/zip-file/> -n <slack-team-name>
