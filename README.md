@@ -2,7 +2,9 @@
 
 ![Build status](https://travis-ci.org/ibm-cds-labs/slack-analytics.svg?branch=master)
 
-The Analytics for Slack demo utilizes the following Bluemix services:
+To understand what this repo's all about, read [this introduction to searching Slack with IBM Graph](https://wp.me/p6nwVO-2gu)
+
+The Analytics for Slack demo uses the following Bluemix services:
  * [IBM Graph](https://console.ng.bluemix.net/catalog/services/ibm-graph/)
  * [Watson Alchemy API](https://console.ng.bluemix.net/catalog/services/alchemyapi/)
 
@@ -26,7 +28,7 @@ To set up this analytics for Slack demo you need to:
 
  	* [IBM Graph](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-graph-database)
  	 
-4. Explore the sample app.
+4. Explore the sample **about** app.
  
   * [Query user and channel activity in Slack](https://github.com/ibm-cds-labs/slack-analytics-about-service) 
 
