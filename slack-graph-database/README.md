@@ -69,9 +69,9 @@ Now that you've [collected Slack statistics](https://github.com/ibm-cds-labs/sla
 
         Define environment variable VCAP_SERVICES using the appropriate service credentials
       
-            ```
+         ```
             {"IBM Graph":[{"name":"slack-graph-database","label":"IBM Graph","plan":"Entry","credentials":{"apiURL":"TODO-REPLACE-WITH-your-IBM-Graph-instance-API-URL","username":"TODO-REPLACE-WITH-your-IBM-Graph-instance-username","password":"TODO-REPLACE-WITH-your-IBM-Graph-instance-password"}}]}
-            ```
+         ```
 
 ### Define the Slack schema in your Graph service
 
@@ -83,7 +83,7 @@ Now that you've [collected Slack statistics](https://github.com/ibm-cds-labs/sla
   
 ### Generate the Slack graph model for your team
 
-  Run `build-slack-graph-model.js` to generate a Slack graph model file using the statistics files that you [generated earlier](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats).
+  Run `build-slack-graph-model.js` to generate a Slack graph model file using the statistic files that you [generated earlier](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats).
 
   ```
   $ node build-slack-graph-model.js -s </path/to/><slack-team-name>-stats.json -k </path/to/><slack-team-name>-keyword-stats.json -c </path/to/>channels.json -u </path/to/>users.json -n <slack-model-name>
@@ -92,7 +92,7 @@ Now that you've [collected Slack statistics](https://github.com/ibm-cds-labs/sla
  > Example: 
  > ```node build-slack-graph-model.js -s ../stats/demo-team-stats.json -k ../stats/demo-team-keyword-stats.json -c /home/wolli/channels.json -u /home/wolli/users.json -n demo-team-0801```
 
-You'll use the Slack graph model file you just generated `<slack-model-name>.sgm` in the next step to load the graph into the IBM Graph service instance.
+You'll use the Slack graph model file you just generated (`<slack-model-name>.sgm`) in the next step to load the graph into the IBM Graph service instance.
 
 ### Load the Slack graph model into your IBM Graph service instance
 
