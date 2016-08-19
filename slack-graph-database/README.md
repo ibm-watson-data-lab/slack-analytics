@@ -88,11 +88,11 @@ Now that you've [collected Slack statistics](https://github.com/ibm-cds-labs/sla
   Run `build-slack-graph-model.js` to generate a Slack graph model file using the statistic files that you [generated earlier](https://github.com/ibm-cds-labs/slack-analytics/tree/master/slack-stats).
 
   ```
-  $ node build-slack-graph-model.js -s </path/to/><slack-team-name>-stats.json -k </path/to/><slack-team-name>-keyword-stats.json -c </path/to/>channels.json -u </path/to/>users.json -n <slack-model-name>
+  $ node build-slack-graph-model.js -s "</path/to/><slack-team-name>-stats.json" -k "</path/to/><slack-team-name>-keyword-stats.json" -c "</path/to/>channels.json" -u "</path/to/>users.json" -n <slack-model-name>
   ```
 
  > Example: 
- > ```node build-slack-graph-model.js -s ../stats/demo-team-stats.json -k ../stats/demo-team-keyword-stats.json -c /home/wolli/channels.json -u /home/wolli/users.json -n demo-team-0801```
+ > ```node build-slack-graph-model.js -s "../stats/demo-team-stats.json" -k "../stats/demo-team-keyword-stats.json" -c "/home/wolli/demo-team Slack export May 3 2016/channels.json" -u "/home/wolli/demo-team Slack export May 3 2016/users.json" -n demo-team-0801```
 
 You'll use the Slack graph model file you just generated (`<slack-model-name>.sgm`) in the next step to load the graph into the IBM Graph service instance.
 
