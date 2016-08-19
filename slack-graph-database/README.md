@@ -16,6 +16,8 @@ Now that you've [collected Slack statistics](https://github.com/ibm-cds-labs/sla
  Install the module dependencies in the `slack-graph-database` directory
 
 ```
+    $ pwd
+    slack-analytics/
     $ cd slack-graph-database
     $ npm install
 ```
