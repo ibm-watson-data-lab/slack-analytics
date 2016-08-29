@@ -38,7 +38,7 @@ const IBMGraphClient = require('ibm-graph-client');
  *      {
  *          "name": "slack-graph-database",
  *          "label": "IBM Graph",
- *          "plan": "Entry",
+ *          "plan": "Standard",
  *          "credentials": {
  *            "apiURL": "https://ibmgraph-alpha.ng.bluemix.net/9c6e7377-82a4-4dad-a1e2-4223e776349A/g",
  *            "username": "d3c76e27-5d3b-4b68-9dBc-278326cD3bc7",

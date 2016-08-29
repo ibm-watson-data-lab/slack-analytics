@@ -3,7 +3,7 @@
     {
       "name": "slack-graph-database",
       "label": "IBM Graph",
-      "plan": "Entry",
+      "plan": "Standard",
       "credentials": {
         "apiURL": "TODO-REPLACE-WITH-your-IBM-Graph-instance-API-URL",
         "username": "TODO-REPLACE-WITH-your-IBM-Graph-instance-username",

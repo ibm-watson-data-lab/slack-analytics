@@ -27,7 +27,7 @@ Now that you've [collected Slack statistics](https://github.com/ibm-cds-labs/sla
 1. Create a new IBM Graph service instance in Bluemix named **slack-graph-database**
 
     ```
-    $ cf create-service "IBM Graph" Entry slack-graph-database
+    $ cf create-service "IBM Graph" Standard slack-graph-database
     ```
 
 2. Create service credentials for this service instance
@@ -72,7 +72,7 @@ Now that you've [collected Slack statistics](https://github.com/ibm-cds-labs/sla
         Define environment variable VCAP_SERVICES using the appropriate service credentials
       
          ```
-            {"IBM Graph":[{"name":"slack-graph-database","label":"IBM Graph","plan":"Entry","credentials":{"apiURL":"TODO-REPLACE-WITH-your-IBM-Graph-instance-API-URL","username":"TODO-REPLACE-WITH-your-IBM-Graph-instance-username","password":"TODO-REPLACE-WITH-your-IBM-Graph-instance-password"}}]}
+            {"IBM Graph":[{"name":"slack-graph-database","label":"IBM Graph","plan":"Standard","credentials":{"apiURL":"TODO-REPLACE-WITH-your-IBM-Graph-instance-API-URL","username":"TODO-REPLACE-WITH-your-IBM-Graph-instance-username","password":"TODO-REPLACE-WITH-your-IBM-Graph-instance-password"}}]}
          ```
 
 ### Define the Slack schema in your Graph service
